@@ -1,81 +1,66 @@
 
-// using file system module in node.js 
 const fs = require('fs');
 const textbyLine = fs.readFileSync('input.txt').toString().split('\n');
-
+textbyLine.pop();
 
 let oppMove = [];
 let yourMove = [];
 textbyLine.forEach( (line) => {
-    let words = line.split(' ');
+    const words = line.split(' ');
     oppMove.push(words[0]);
     yourMove.push(words[1]);
 });
 
 
-oppMove = transposeOppMove(oppMove);
+const transposeMap = new Map().set('A', 'X').set('B', 'Y').set('C', 'Z');
+oppMove = transposeOppMove(oppMove, transposeMap);
+const pointMap = new Map().set('X', 1).set('Y', 2).set('Z', 3);
+const winningMove = new Map().set('X', 'Y').set('Y', 'Z').set('Z', 'X');
+const losingMove = new Map().set('X', 'Z').set('Y', 'X').set('Z', 'Y');
 
+// Part 1
+console.log (choiceTotal(yourMove, pointMap) + winsTotal(oppMove, yourMove, winningMove));
 
-//console.log(choiceTotal(yourMove));
-console.log (choiceTotal(yourMove) + winsTotal(oppMove, yourMove));
-//console.log(nonSusStrategy(oppMove, yourMove));
-
-
-
-function choiceTotal(yourMove) {
-    let total = 0;
-    for (let i = 0; i < yourMove.length; i++) {
-        if (yourMove[i] === 'X') {
-            total += 1;
-        } else if (yourMove[i] === 'Y') {
-            total += 2;
-        } else if (yourMove[i] === 'Z') {
-            total += 3;
-        }
+// Part 2
+let total = 0;
+for(let i = 0; i < oppMove.length; i++){
+    let yourChoice;
+    if(yourMove[i] === 'X'){
+        yourChoice = losingMove.get(oppMove[i]);
+         total += pointMap.get(yourChoice);
+    } else if (yourMove[i] === 'Y'){
+        yourChoice = oppMove[i];
+        total += pointMap.get(yourChoice) + 3;
+    } else if (yourMove[i] === 'Z'){
+        yourChoice = winningMove.get(oppMove[i]);
+        total += pointMap.get(yourChoice) + 6;
     }
+}
+console.log(total);
+
+function choiceTotal(yourMove, pointMap) {
+    let total = 0;
+    yourMove.forEach((move) => total += pointMap.get(move));
     return total;
 }
 
-function winsTotal(oppMove, yourMove){
+function winsTotal(oppMove, yourMove, winningMove){
     let total = 0;
-    
-
     // total + 0 for a loss
     // total + 3 for a tie
     // total + 6 for a win
     for (let i = 0; i < oppMove.length; i++) {
         if (oppMove[i] === yourMove[i]) {
             total += 3;
-        } else if (oppMove[i] === 'X' && yourMove[i] === 'Y') {
+        } else if(yourMove[i] == winningMove.get(oppMove[i])){
             total += 6;
-        } else if (oppMove[i] === 'X' && yourMove[i] === 'Z') {
-            total += 0;
-        } else if (oppMove[i] === 'Y' && yourMove[i] === 'X') {
-            total += 0;
-        } else if (oppMove[i] === 'Y' && yourMove[i] === 'Z') {
-            total += 6;
-        } else if (oppMove[i] === 'Z' && yourMove[i] === 'X') {
-            total += 6;
-        } else if (oppMove[i] === 'Z' && yourMove[i] === 'Y') {
-            total += 0;
-        }
+        } 
     }
     return total;
 }
 
-function transposeOppMove(oppMove){
-    for (let i = 0; i < oppMove.length; i++) {
-        if (oppMove[i] === 'A'){
-            oppMove[i] = 'X';
-        }
-        else if (oppMove[i] === 'B'){
-            oppMove[i] = 'Y';
-        }
-        else if (oppMove[i] === 'C'){
-            oppMove[i] = 'Z';
-        }
-    }
-    return oppMove;
+function transposeOppMove(oppMove, transposeMap){
+    return oppMove.map( (move) => transposeMap.get(move));
 }
 
 
@@ -83,54 +68,24 @@ function mustDraw(move){
     return move;
 }
 
-function mustWin(move){
-    if (move === 'X'){
-        return 'Y';
-    } else if (move === 'Y'){
-        return 'Z';
-    }
-    else if (move === 'Z'){
-        return 'X';
-    }
+function mustWin(move, winningMove){
+    return winningMove.get(move);
 }
 
-function mustLose(move){
-    if (move === 'X'){
-        return 'Z';
-    } else if (move === 'Y'){
-        return 'X';
-    }
-    else if (move === 'Z'){
-        return 'Y';
-    }
-    
+function mustLose(move, losingMove){
+    return losingMove.get(move);
 }
 
-function moveChoiceSore(move){
-    if (move === 'X'){
-        return 1;
-    }
-    else if (move === 'Y'){
-        return 2;
-    }
-    else if (move === 'Z'){
-        return 3;
-    }
+function mustDrawChoice(move){
+    return move;
 }
 
-function nonSusStrategy(oppMove, yourMove){
-    let total = 0;
-    for (let i = 0; i < oppMove.length; i++) {
-        if (yourMove[i] === 'X'){
-            total += moveChoiceSore(mustLose(yourMove[i]));
-        } else if (yourMove[i] === 'Y'){
-            total += moveChoiceSore(mustDraw(yourMove[i])) + 3;
-        } else if (yourMove[i] === 'Z'){
-            total += moveChoiceSore(mustWin(yourMove[i])) + 6;
-        }
-    }
-    return total;
+
+function moveChoiceSore(move, pointMap){
+    return pointMap.get(move);
 }
+
+
 
 
 
