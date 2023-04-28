@@ -10,32 +10,34 @@ let fileByLine = input.split('\n').map( (line) => {
 });
 
 
-
-let currentDirectory = new directory('/');
-let directories = [];
-directories.push(currentDirectory);
+let root = new directory('/');
+let currentDirectory = root;
+let directories = []; // all directories in root
+currentDirectory.subdirectories = directories;
+//directories.push(currentDirectory);
 for(let i = 1; i < fileByLine.length; i++) {
-    let line = fileByLine[i];
-    let lineBySpace = line.split(' ');
-    let beginOfLine = lineBySpace[0];
-    let name = lineBySpace[1];
+    const line = fileByLine[i];
+    const lineBySpace = line.split(' ');
+    const beginOfLine = lineBySpace[0];
+    const name = lineBySpace[1];
     if(beginOfLine == 'cd') {
-        if(name== '..') {
-            currentDirectory = currentDirectory.parent;
-            console.log('went to parent' + currentDirectory.name);
-        } else if(directories.map((directory) => directory.getDirectoryName()).includes(name)) {
-            currentDirectory = directories[name];
-        }
+        if(name == '..') {
+                currentDirectory = currentDirectory.getParent();
+        } else if (name == '/') {
+            currentDirectory = root;
+        } else if(currentDirectory.subdirectories.map((directory) => directory.getDirectoryName()).includes(name)) { // if the name is in the subdirectories
+            
+            let temp = currentDirectory.subdirectories.filter( (directory) => directory.getDirectoryName() == name)[0]; // get the directory with the name
+            temp.setParent(currentDirectory);   
+            currentDirectory = temp;
+        } 
     } else if (beginOfLine == 'dir') {
-        let newDirectory = new directory(name); // newDirectory returns undefined
-        console.log(name); // returns expected value
-        console.log(newDirectory.getDirectoryName()); // returns undefined
-        directories.push(newDirectory);
+        let newDirectory = new directory(name);
         newDirectory.setParent(currentDirectory);
-        currentDirectory.addSubdirectory(newDirectory);
-        currentDirectory = newDirectory;
-    } else if (typeof beginOfLine == 'number') {
-        currentDirectory.addFile(new file.file(name, beginOfLine));
+        newDirectory.getParent().addSubdirectory(newDirectory);
+        
+    } else if (!isNaN(beginOfLine)) {
+        currentDirectory.addFile(new file(name, Number(beginOfLine)));
     }
     
 }
@@ -69,10 +71,17 @@ for(let i = 1; i < fileByLine.length; i++) {
 //     }
 
 // }
+const limit = 100000;
+let arr = [];
+root.printDirectoryStructure(0, arr);
+const sum = arr.reduce( (a, b) => Number(a) + Number(b), 0);
+console.log(sum);
 
+let deleteList = [];
+const maxSpace = 70000000;
+const usedSpace = root.getDirectorySize();
+const spaceTarget = 30000000;
+root.generateDeleteList(maxSpace, usedSpace, spaceTarget, deleteList);
 
-console.log(directories.length);
-directories.forEach( (directory) => {
-   // directory.getDirectorySize() > 0 ? console.log(directory.name) : null;
-   console.log(directory.name);
-});
+const smallestDeletableFileSize = Math.min(...deleteList);
+console.log(smallestDeletableFileSize);
