@@ -40,28 +40,19 @@ module.exports = class directory {
     getDirectorySize() {
         let size = 0;
         size += this.fileTotal;
-        console.log('orange');
-       
-        
-        this.subdirectories.forEach( (subdirectory) => {
-            size += subdirectory.getDirectorySize();
-
-        });
+        this.subdirectories.forEach( (subdirectory) => size += subdirectory.getDirectorySize());
         return size;
     }   
 
     getDirectorySize(limit, arr){
-        let size = 0;
-        size += this.fileTotal;
-        this.subdirectories.forEach( (subdirectory) => size += subdirectory.getDirectorySize(limit, arr));
+        let size = this.getDirectorySize();
         if(size <= limit){
-        arr.push(size);
-        // /this.print(size);
-        }
-       // this.print(size);
-        return size ;
+            arr.push(size);
+            }
+        this.subdirectories.forEach( (subdirectory) => size += subdirectory.getDirectorySize(limit, arr));
+        
+        return size;
     }
-
 
 
     getNumSubdirectories() {

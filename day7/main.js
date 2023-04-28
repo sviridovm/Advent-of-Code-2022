@@ -14,7 +14,6 @@ let root = new directory('/');
 let currentDirectory = root;
 let directories = []; // all directories in root
 currentDirectory.subdirectories = directories;
-//directories.push(currentDirectory);
 for(let i = 1; i < fileByLine.length; i++) {
     const line = fileByLine[i];
     const lineBySpace = line.split(' ');
@@ -43,34 +42,6 @@ for(let i = 1; i < fileByLine.length; i++) {
 }
 
 
-// function directoryFactory(line, currentDirectory) {
-//     let lineBySpace = line.split(' ');
-//     let beginOfLine = lineBySpace[0];
-//     let name = lineBySpace[1];
-//     if (beginOfLine == 'ls') {
-//         return null;
-//     }
-
-//     if(beginOfLine == 'cd') {
-//         let name = lineBySpace[1];
-//         if(name== '..') {
-//             currentDirectory = currentDirectory.parent;
-//         }
-//         if(directories.includes(name)) {
-//             currentDirectory = directories[name];
-//         }
-//     }
-
-//     if (beginOfLine == 'dir') {
-//         return new directory.directory(name);
-//     }
-
-//     if (typeof beginOfLine == 'number') {
-//         currentDirectory.addFile(new file.file(name, beginOfLine));
-//         return null;
-//     }
-
-// }
 const limit = 100000;
 let arr = [];
 root.printDirectoryStructure(0, arr);
